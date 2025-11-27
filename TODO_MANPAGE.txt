@@ -1,0 +1,106 @@
+TODO.SH(1)                          User Commands                          TODO.SH(1)
+
+NAME
+       todo.sh - A command-line To-Do List Manager written in Bash
+
+SYNOPSIS
+       todo.sh --list <name> --add "<description>" [--due YYYY-MM-DD]
+               [--priority high|medium|low] [--tags tag1,tag2]
+               [--recurrence none|daily|weekly|monthly]
+
+       todo.sh --list <name> --view
+
+       todo.sh --list <name> --complete <task_id>
+
+       todo.sh --list <name> --delete <task_id>
+
+       todo.sh --list <name> --search "<keyword>"
+
+DESCRIPTION
+       todo.sh is a simple shell-based To-Do List Manager that allows users to create,
+       view, update, and search tasks from the command line. Tasks are stored in
+       separate text files inside the ./todo_data directory, allowing multiple lists.
+
+       Each task entry uses the following field format:
+
+           id|status|description|due|priority|tags|recurrence
+
+       status:
+           0 = incomplete
+           1 = complete
+
+OPTIONS
+       --list <name>
+              Selects which to-do list to use. The list is stored in a file named:
+                  ./todo_data/<name>.todo
+              If the file does not exist, it will be automatically created.
+
+       --add "<description>"
+              Adds a new task with the given description. Additional options may be
+              provided:
+
+              --due YYYY-MM-DD
+                     Sets the task's due date.
+
+              --priority <level>
+                     Sets priority to high, medium, or low.
+
+              --tags tag1,tag2
+                     Assigns comma-separated tags to a task.
+
+              --recurrence <type>
+                     Sets recurring behavior. Options:
+                       none (default)
+                       daily
+                       weekly
+                       monthly
+
+       --view
+              Displays all tasks in the currently selected list. Each task shows:
+                  [ID] description | due | PRIORITY | tags | status
+
+       --complete <task_id>
+              Marks the given task as complete. If recurrence is enabled, a new task
+              with the next due date will automatically be created.
+
+       --delete <task_id>
+              Removes the task with the specified ID from the list.
+
+       --search "<keyword>"
+              Prints all tasks containing the keyword in any field.
+
+EXAMPLES
+       Add a new task with due date, priority, and tags:
+              ./todo.sh --list work --add "Finish report" \
+                        --due 2024-12-01 --priority high \
+                        --tags work,report
+
+       View all tasks in the "home" list:
+              ./todo.sh --list home --view
+
+       Mark a task complete:
+              ./todo.sh --list personal --complete 3
+
+       Delete a task:
+              ./todo.sh --list home --delete 5
+
+       Search for tasks containing "project":
+              ./todo.sh --list work --search "project"
+
+FILES
+       ./todo_data/
+              Directory containing all .todo files.
+
+       ./todo_data/<name>.todo
+              A plain-text file storing all tasks for a specific list.
+
+NOTES
+       • This script requires a POSIX-compliant shell (tested on Bash).
+       • Date calculations depend on GNU date. On macOS, adjustments are required.
+       • Lines are appended and modified using awk, grep, and temporary swap files.
+
+AUTHOR
+       Written by <Abdo Zakaria,Trisha Nandan,Shraddha Bhusal> for Unix CS11005 Assignment .
+
+SEE ALSO
+       bash(1), awk(1), grep(1), date(1)
