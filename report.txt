@@ -1,120 +1,145 @@
-CS11005 Assignment 1 – Group Report
-Design, Implementation, Challenges, Testing, and Future Improvements
+Report 
 
+1. Introduction 
 
-Our group developed a command-line To-Do List Manager in shell scripting as part of the CS11005 assignment. The goal was to implement a fully functional task manager that runs entirely through the terminal while demonstrating proficiency in Bash scripting, argument parsing, file handling, data storage, and user-focused design. This report outlines our approach, design decisions, technical implementation, challenges faced, solutions applied, testing strategy, and potential improvements.
+  
 
-1. Project Overview
+I worked with my group on this assignment. We were asked to design and implement a command-line To-Do List Manager using shell scripting. The command-line To-Do List Manager needed a script that lets users manage tasks directly from the terminal. The script had to use file handling, argument parsing, loops, conditionals and text processing tools such, as awk and grep. We wrote the script. We tested the command-line To-Do List Manager. We made sure the command-line To-Do List Manager works as expected. 
 
-The aim of the project was to build a shell script, todo.sh, that manages multiple to-do lists. Each list is stored as a separate text file inside a todo_data directory. The tool allows users to add tasks, view them, modify or delete tasks, search tasks, and mark tasks as complete. Optional features include recurring tasks, sorting, filtering, tagging, and prioritization.
+  
 
-Our group wanted to create a script that is easy to use, modular, and simple to maintain, while still demonstrating competency across all the assignment requirements.
+Our script called todo.sh lets users create to‑do lists. The script lets users add tasks. The script lets users view tasks. The script lets users search tasks. The script lets users mark tasks as complete. The script lets users tasks. The script stores each to‑do list, in its file. The file storage makes the program easy to manage and easy to extend. We learned how command‑line tools work. The project gave us experience writing shell scripts and debugging shell scripts. 
 
-2. Design Decisions
+  
 
-We chose plain-text storage for simplicity, readability, and easy debugging. Each task is stored as a single line using the following format:
+2. Overall Design 
 
-id|status|description|due|priority|tags|recurrence
+  
 
+We decided to keep all task data in text files. Plain text files are easy to read and easy to use with tools. We put each to‑do list in the folder called todo_data. The folder called todo_data holds a file, for each to‑do list. For example work.todo is a file for a to‑do list. Personal.todo is a file, for a to‑do list. 
 
-This format made it easy to manipulate tasks using awk, grep, cut, and other core utilities. We also chose this because it resembles a simple database table and allows for straightforward processing.
+  
 
-We implemented multiple lists by storing each list as its own file (<listname>.todo) in the todo_data/ directory. This avoids file clutter and gives the user full control over task separation (e.g., work, personal, school).
+Here is the rule. I write each task on a line using the format below: 
 
-Argument parsing uses a simple while (( "$#" )); do ... case "$1" in loop. This pattern is reliable and easy to expand if we want more features later.
+  
 
-3. Implementation Details
-3.1 Adding Tasks
+id|status|description|due|priority|tags|recurrence 
 
-The add_task() function fetches the next available ID using next_id(), which scans the existing file and identifies the highest ID. Tasks are appended as pipe-separated fields. This approach ensures IDs remain unique even after deletions.
+  
 
-3.2 Viewing Tasks
+I used the structure to extract and modify the fields when I completed a task or deleted a task. The pipe characters served as separators. The pipe characters let me process each field with awk. 
 
-The view_tasks() function uses awk to display tasks in a human-readable format. We convert priority to uppercase for clarity and translate 0 and 1 into “Incomplete” or “Complete.”
+  
 
-3.3 Completing Tasks
+We built the script to be fully command line driven. The script lets users run all actions, with options such, as --add, --view --complete and --delete. The script follows the way real Unix utilities behave. 
 
-When a task is completed, its status is changed to 1. If it is a recurring task (daily, weekly, or monthly), the script automatically calculates the next due date using GNU date functions and adds the next occurrence.
+  
 
-3.4 Deleting Tasks
+3. Implementation Details 
 
-Tasks are removed using awk by printing all lines not matching the target ID. This approach avoids overwriting or corrupting data.
+3.1 Adding Tasks 
 
-3.5 Searching
+  
 
-The search function uses grep -i to allow case-insensitive keyword searching across any field.
+Tasks are added with the option. When a new task is added the script automatically assigns the task an ID. The script checks the existing ID in the list file. Then adds one. The script makes sure that the task IDs stay unique even if the tasks are deleted later. 
 
-3.6 Argument Parsing
+  
 
-Each option updates internal variables, and at the end, a case block decides which operation to run. This keeps the script organized and maintainable.
+I can add arguments, like date, priority, tags and recurrence. If the optional arguments are not given the fields stay empty. The fields are set to default values. 
 
-4. Challenges and How We Solved Them
-4.1 Broken Script During Development
+  
 
-The biggest challenge we faced was accidentally pasting incomplete chunks of the script. This resulted in missing functions such as delete_task() and syntax errors like “unexpected token”. We solved this by reviewing line numbers, using nano to edit, and re-pasting missing functions.
+3.2 Viewing Tasks 
 
-4.2 date -d Compatibility
+  
 
-GNU date -d works on Linux and Git Bash, but not macOS. To ensure portability, we kept date operations isolated inside one function so they can easily be updated for macOS users if needed.
+When I run the command with the --view option I see all tasks, in a selected list. The tasks appear in a format that includes the task ID, the description, the due date the priority, the tags and the completion status. If a list is empty the script prints (no tasks). The user then knows the list exists but contains no entries. 
 
-4.3 Argument Parsing Confusion
+  
 
-We learned that Bash requires exact syntax when parsing arguments. Missing patterns (e.g., a missing case "$1" in) caused major issues. This led us to organize parsing in a clean, predictable structure.
+3.3 Completing Tasks 
 
-4.4 Tasks Display Formatting
+  
 
-Formatting rows using awk required careful handling of fields and spacing. We tested output repeatedly to ensure readability.
+When I mark a task as complete using the command --complete <id> the task status changes from 0, to 1. The output then shows the task as "Complete”. I can see away which tasks are finished. 
 
-5. Testing Strategy
+  
 
-We tested every feature using separate test lists:
+For recurring tasks the script automatically creates a task, with the due date when the current task is completed. I set up the script to do that. The script uses date calculations inside a function to set the due date. 
 
-Adding multiple tasks
+  
 
-Viewing tasks
+3.4 Deleting Tasks 
 
-Searching for various keywords
+  
 
-Completing tasks and checking if recurrence worked
+I use the option to remove tasks. The --delete option rewrites the list file. Leaves out the task that has the matching ID. The rewrite does not corrupt the file. The rewrite keeps the remaining tasks. 
 
-Editing and deleting tasks
+  
 
-Handling empty lists (should show “no tasks”)
+3.5 Searching Tasks 
 
-Checking behavior of invalid inputs
+  
 
-We also tested commands in different orders to ensure the script handled unexpected user behavior gracefully.
+I use the --search option to find tasks by keyword. The feature runs grep with ignore case, across every field of each task. The feature checks the title, the description, the tags, the dates and any other field. The feature lets me locate a task fast. I do not have to scroll through a list. 
 
-6. Future Improvements
+  
 
-If given more time, we would add:
+4. Argument Parsing 
 
-6.1 Interactive Mode
+  
 
-A menu-driven interface would allow beginners to manage tasks without learning command-line options.
+Command-line arguments get processed with a while loop and a case statement. Each recognised option sets a variable. The variable later tells the function that should run. The while loop and the case statement keep the code organized. The while loop and the case statement also make adding new options easier. 
 
-6.2 Sorting & Filtering
+  
 
-Although basic sorting exists, we would implement robust filters such as:
+I check for unknown arguments. When the program finds unknown arguments, the program prints an error message. The error message improves usability. Prevents behaviour. 
 
-“Tasks due this week”
+  
 
-“High priority only”
+5. The Challenges We Faced 
 
-“Tasks containing tag X”
+  
 
-6.3 Calendar View
+During development I ran into a challenge. The challenge was debugging syntax errors that came from missing or badly pasted parts of the script. Bash error messages were hard to read at first. The error messages often pointed to missing functions or broken case statements. I fixed the problem by checking line numbers by looking at the script structure and by testing each feature one step at a time. 
 
-Displaying tasks in a calendar layout (e.g., using cal and highlighting dates) would greatly improve usability.
+  
 
-6.4 Archiving
+Another challenge was making sure the script ran correctly each time. The script also had to keep all data. I used files when I edited the task lists. The temporary files stopped data loss. 
 
-Instead of deleting completed tasks, we would move them to an archive file.
+  
 
-6.5 Backup & Restore
+Working with date calculations was hard. The GNU date command works differently on some systems. I kept the date handling in one function. The one function lets me change the date handling quickly if I need to. 
 
-A feature to automatically create backups of task lists would prevent data loss.
+  
 
-7. Conclusion
+6. Testing 
 
-This assignment helped us understand shell scripting more deeply, especially in areas such as parsing command-line arguments, working with files, processing text with utilities like awk, and structuring a modular script. We learned how to debug complex Bash errors, plan clean data structures, and produce real documentation. Overall, our To-Do List Manager meets the assignment specifications and successfully demonstrates our competency in Bash scripting, collaboration, and problem-solving.
+  
+
+We tested the script fully by creating lists and running every operation the script supports. The tests added tasks, with fields and added tasks without fields. The tests viewed lists. Viewed populated lists. The tests searched for tasks. The tests completed tasks. The tests deleted tasks. 
+
+Every single function is tested one by one, along with other functions together, to make sure that the script is acting as it should in a real situation. Bug fixes are made as they are generated, until all functions are behaving as they should. 
+
+  
+
+7. Possible Improvements 
+
+  
+
+If more time had been available, a number of additional improvements could have been included. These include an interactive menu-driven beginner mode, more sophisticated filtering and sorting functionality, archiving completed tasks rather than deleting them, and a calendar-based display of tasks. 
+
+  
+
+Another useful enhancement would be to validate inputs, for example, date validation, more strictly, as well as consider a more elegant way of handling optional inputs. 
+
+  
+
+8. Conclusion 
+
+  
+
+This activity has been very educational with regard to shell scripting as well as the design of command-line programs. It has been educational in terms of learning how to manipulate data with the use of files, how to interpret user inputs, as well as how to repair problems that come with scripting. The final todo.sh script submitted is complete with all the requirements set in the assignment exercise. 
+
+ 
